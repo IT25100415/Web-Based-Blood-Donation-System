@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Blood Donating OS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body, html { 
+            height: 100%;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; 
+            background-color: #ffffff;
+        }
+        .bg-image {
+            background: linear-gradient(135deg, rgba(220, 53, 69, 0.9), rgba(176, 42, 55, 0.95)), url('https://images.unsplash.com/photo-1536856136534-bb679c52a9aa?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            box-shadow: inset -10px 0 30px rgba(0,0,0,0.1);
+        }
+        .form-control, .form-select { 
+            background-color: #f8f9fa; 
+            border: 1.5px solid #e9ecef;
+            color: #000000; 
+            padding: 10px 15px; 
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.2s;
+        }
+        .form-control:focus, .form-select:focus { 
+            background-color: #ffffff; 
+            border-color: #dc3545; 
+            box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.1); 
+        }
+        .btn-danger {
+            background: linear-gradient(90deg, #dc3545, #b02a37);
+            border: none;
+            padding: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+            transition: all 0.3s;
+        }
+        .btn-danger:hover {
+            background: linear-gradient(90deg, #b02a37, #dc3545);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+        }
+        .form-label {
+            font-weight: 600;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid h-100 p-0">
+        <div class="row g-0 h-100">
+            
+            <!-- Left Side Registration Form -->
+            <div class="col-lg-6 d-flex align-items-center justify-content-center bg-white" style="overflow-y: auto;">
+                <div class="w-100 px-4 px-md-5 py-5" style="max-width: 550px;">
+                    
+                    <div class="mb-4">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div style="width: 45px; height: 45px; background: linear-gradient(135deg, #dc3545, #b02a37); border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);">
+                                <i class="bi bi-person-plus-fill text-white fs-4"></i>
+                            </div>
+                            <h2 class="fw-bold text-dark mb-0">Join as a Donor</h2>
+                        </div>
+                        <p class="text-muted">Register today to start saving lives and tracking your impact.</p>
+                    </div>
+                    
+                    <div th:if="${param.error == 'email_exists'}" class="alert alert-danger border-0 border-start border-4 border-danger shadow-sm">
+                        <i class="bi bi-exclamation-circle-fill me-2"></i> Email is already registered.
+                    </div>
+                    <div th:if="${param.error == 'invalid_data'}" class="alert alert-danger border-0 border-start border-4 border-danger shadow-sm">
+                        <i class="bi bi-exclamation-circle-fill me-2"></i> Invalid data provided. Please check NIC format.
+                    </div>
+
+                    <form th:action="@{/register}" method="post">
+                        <div class="row mb-3">
+                            <div class="col-12 mb-3">
+                                <label class="form-label text-muted">Full Name</label>
+                                <input type="text" name="name" class="form-control" placeholder="John Doe" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted">Email Address</label>
+                                <input type="email" name="email" class="form-control" placeholder="john@example.com" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted">Password</label>
+                                <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted">NIC Number</label>
+                                <input type="text" name="nic" class="form-control" pattern="^([0-9]{9}[vVxX]|[0-9]{12})$" placeholder="e.g. 199012345678" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted">Blood Group</label>
+                                <select name="bloodGroup" class="form-select" required>
+                                    <option value="" disabled selected>Select...</option>
+                                    <option value="A+">A+</option>
+                                    <option value="A-">A-</option>
+                                    <option value="B+">B+</option>
+                                    <option value="B-">B-</option>
+                                    <option value="O+">O+</option>
+                                    <option value="O-">O-</option>
+                                    <option value="AB+">AB+</option>
+                                    <option value="AB-">AB-</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <label class="form-label text-muted">City</label>
+                                <input type="text" name="city" class="form-control" placeholder="Colombo" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted">Phone Number</label>
+                                <input type="text" name="phone" class="form-control" pattern="^(0\d{9})$" placeholder="0771234567" required>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-danger w-100 mb-4 mt-2">Create Donor Account</button>
+                    </form>
+                    
+                    <div class="text-center">
+                        <p class="text-muted small">Already have an account? <a th:href="@{/login}" class="text-danger text-decoration-none fw-bold">Sign in here</a></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side Branding -->
+            <div class="col-lg-6 d-none d-lg-flex bg-image align-items-center justify-content-center flex-column position-relative">
+                <div class="text-center px-5 position-relative z-1">
+                    <h1 class="fw-bold display-4 mb-4" style="text-shadow: 0 2px 10px rgba(0,0,0,0.2);">Be a Hero</h1>
+                    <p class="lead" style="max-width: 450px; margin: 0 auto; opacity: 0.9; font-weight: 400; line-height: 1.6;">
+                        "A single drop of blood can make a huge difference." Join our community of life-savers.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>
