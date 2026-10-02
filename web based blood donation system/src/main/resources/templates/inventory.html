@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Blood Donating OS - ' + ${title}">Blood Donating OS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body { background-color: #f8f9fa; color: #000000; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; overflow-x: hidden; }
+        .sidebar { background-color: #ffffff; height: 100vh; position: fixed; top: 0; left: 0; width: 280px; padding: 20px 0; display: flex; flex-direction: column; border-right: 1px solid #dee2e6; }
+        .brand { padding: 0 24px 30px; display: flex; align-items: center; gap: 15px; }
+        .brand-icon { width: 48px; height: 48px; background: linear-gradient(135deg, #dc3545, #b02a37); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: white; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4); }
+        .brand-text h3 { margin: 0; font-weight: 700; font-size: 20px; color: #dc3545; letter-spacing: -0.5px; }
+        .brand-text span { font-size: 11px; color: #6c757d; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+        .sidebar .nav-item { margin: 4px 16px; }
+        .sidebar .nav-link { color: #495057; padding: 12px 16px; border-radius: 10px; display: flex; align-items: center; gap: 15px; font-weight: 500; font-size: 15px; transition: all 0.2s ease; text-decoration: none; }
+        .sidebar .nav-link:hover { color: #dc3545; background-color: rgba(220, 53, 69, 0.05); }
+        .sidebar .nav-link i { font-size: 18px; width: 24px; text-align: center; }
+        .sidebar .nav-link.active { background: linear-gradient(90deg, #dc3545, #b02a37); color: white; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.25); }
+        .user-profile { margin-top: auto; margin-bottom: 20px; margin-left: 16px; margin-right: 16px; background-color: #f8f9fa; border-radius: 16px; padding: 16px; display: flex; align-items: center; gap: 12px; border: 1px solid #dee2e6; }
+        .user-avatar { flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; background-color: #dc3545; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 16px; }
+        .user-info { min-width: 0; overflow: hidden; }
+        .user-info h6 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0; color: #000000; font-size: 14px; font-weight: 600; }
+        .user-info small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; color: #6c757d; font-size: 12px; }
+        .main-content { margin-left: 280px; padding: 40px; min-height: 100vh; background-color: #f4f6f9; }
+        .page-header { margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
+        .page-title { color: #dc3545; font-weight: 600; font-size: 28px; }
+        .card { background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .table { color: #000000; }
+        .table th { border-bottom-color: #dee2e6; color: #dc3545; font-weight: 600; }
+        .table td { border-bottom-color: #e9ecef; vertical-align: middle; }
+        .modal-content { background-color: #ffffff; border: 1px solid #dee2e6; }
+        .modal-header { border-bottom-color: #dee2e6; }
+        .modal-footer { border-top-color: #dee2e6; }
+        .form-control, .form-select { background-color: #ffffff; border-color: #ced4da; color: #000000; }
+        .form-control:focus, .form-select:focus { background-color: #ffffff; color: #000000; border-color: #dc3545; box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25); }
+    </style>
+</head>
+<body>
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+    <div class="main-content">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title" th:text="${title}">Blood Inventory</h1>
+                <p class="text-muted">Manage stock units and track batch expiration dates.</p>
+            </div>
+            <div>
+                <button type="button" class="btn btn-danger fw-bold" data-bs-toggle="modal" data-bs-target="#addBatchModal">
+                    <i class="bi bi-plus-lg"></i> Log New Batch
+                </button>
+            </div>
+        </div>
+        
+        <div class="row mb-4">
+            <!-- Summary Widgets -->
+            <div class="col-md-3" th:each="stock : ${stockLevels}">
+                <div class="card p-3 mb-3 d-flex flex-row align-items-center gap-3">
+                    <div class="bg-indicator" th:text="${stock.bloodGroup}">A+</div>
+                    <div>
+                        <h4 class="mb-0 text-dark" th:text="${stock.totalUnits}">0</h4>
+                        <small class="text-muted">Available Units</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card p-4">
+            <h5 class="text-dark mb-3">Recent Batches</h5>
+            <div class="table-responsive">
+                <table class="table table-borderless table-hover">
+                    <thead>
+                        <tr>
+                            <th>Batch No.</th>
+                            <th>Group</th>
+                              <th>Units</th>
+                              <th>Component Type</th>
+                            <th>Collected</th>
+                            <th>Expires</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${batches.empty}">
+                            <td colspan="7" class="text-center text-muted py-4">No inventory records found.</td>
+                        </tr>
+                        <tr th:each="batch : ${batches}">
+                            <td th:text="${batch.batchNumber}">BCH-001</td>
+                            <td><span class="badge bg-danger" th:text="${batch.bloodGroup}">O+</span></td>
+                              <td th:text="${batch.units != null ? batch.units : 1}">1</td>
+                              <td th:text="${batch.componentType}">Whole Blood</td>
+                            <td th:text="${#temporals.format(batch.collectionDate, 'dd-MM-yyyy')}">15-09-2026</td>
+                            <td th:text="${#temporals.format(batch.expirationDate, 'dd-MM-yyyy')}">20-10-2026</td>
+                            <td>
+                                <span class="badge" 
+                                      th:classappend="${batch.status == 'AVAILABLE' ? 'bg-success' : 
+                                                      (batch.status == 'RESERVED' ? 'bg-primary' : 
+                                                      (batch.status == 'QUARANTINED' ? 'bg-danger' : 'bg-warning text-dark'))}"
+                                      th:text="${batch.status}">AVAILABLE</span>
+                            </td>
+                            <td>
+                                <form th:action="@{/inventory/update-status}" method="post" class="d-inline">
+                                    <input type="hidden" name="batchNumber" th:value="${batch.batchNumber}"/>
+                                    <select name="status" class="form-select form-select-sm d-inline-block w-auto" onchange="this.form.submit()">
+                                        <option value="">Status...</option>
+                                        <option value="AVAILABLE">AVAILABLE</option>
+                                        <option value="RESERVED">RESERVED</option>
+                                        <option value="QUARANTINED">QUARANTINED</option>
+                                        <option value="IN_TESTING">IN_TESTING</option>
+                                    </select>
+                                </form>
+                                <form th:action="@{/inventory/delete}" method="post" class="d-inline ms-1">
+                                    <input type="hidden" name="batchNumber" th:value="${batch.batchNumber}"/>
+                                    <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Batch Modal -->
+    <div class="modal fade" id="addBatchModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form th:action="@{/inventory/add-batch}" method="post">
+                    <div class="modal-header">
+                        <h5 class="modal-title text-dark">Log New Blood Batch</h5>
+                        <button type="button" class="btn-close btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body text-start">
+                        <div class="mb-3">
+                            <label class="form-label text-dark">Batch Number</label>
+                            <input type="text" class="form-control" name="batchNumber" placeholder="e.g. BCH123445" pattern="^BCH\d{6}$" oninvalid="this.setCustomValidity('Invalid Batch Number. Please use the format BCH followed by exactly 6 digits (e.g., BCH123445).')" oninput="this.setCustomValidity('')" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label text-dark">Blood Group</label>
+                                <select name="bloodGroup" class="form-select" required>
+                                    <option value="A+">A+</option><option value="A-">A-</option>
+                                    <option value="B+">B+</option><option value="B-">B-</option>
+                                    <option value="AB+">AB+</option><option value="AB-">AB-</option>
+                                    <option value="O+">O+</option><option value="O-">O-</option>
+                                </select>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label text-dark">Units</label>
+                                <input type="number" class="form-control" name="units" min="1" value="1" required>
+                              </div>
+                              <div class="col-6 mb-3">
+                                <label class="form-label text-dark">Component Type</label>
+                                <select name="componentType" class="form-select" required>
+                                    <option value="Whole Blood">Whole Blood</option>
+                                    <option value="Red Cells">Red Cells</option>
+                                    <option value="Platelets">Platelets</option>
+                                    <option value="Plasma">Plasma</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Collection Date</label>
+                                <input type="date" class="form-control" name="collectionDate" id="colDate" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Expiration Date</label>
+                                <input type="date" class="form-control" name="expirationDate" id="expDate" required>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-danger">Save Batch</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var today = new Date().toISOString().split('T')[0];
+            // Expiration Date cannot be in the past
+            document.getElementById('expDate').setAttribute('min', today);
+            // Collection Date cannot be in the future
+            document.getElementById('colDate').setAttribute('max', today);
+            
+            // Add custom submit validation
+            document.querySelector('form[action="/inventory/add-batch"]').addEventListener('submit', function(e) {
+                var col = document.getElementById('colDate').value;
+                var exp = document.getElementById('expDate').value;
+                if (exp < today) {
+                    alert('Expiration date cannot be in the past!');
+                    e.preventDefault();
+                }
+                if (col > today) {
+                    alert('Collection date cannot be in the future!');
+                    e.preventDefault();
+                }
+                if (exp <= col) {
+                    alert('Expiration date must be after the collection date!');
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
