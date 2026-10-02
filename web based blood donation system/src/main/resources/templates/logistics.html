@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Blood Donating OS - ' + ${title}">Blood Donating OS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body { background-color: #f8f9fa; color: #000000; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; overflow-x: hidden; }
+        .sidebar { background-color: #ffffff; height: 100vh; position: fixed; top: 0; left: 0; width: 280px; padding: 20px 0; display: flex; flex-direction: column; border-right: 1px solid #dee2e6; }
+        .brand { padding: 0 24px 30px; display: flex; align-items: center; gap: 15px; }
+        .brand-icon { width: 48px; height: 48px; background: linear-gradient(135deg, #dc3545, #b02a37); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: white; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4); }
+        .brand-text h3 { margin: 0; font-weight: 700; font-size: 20px; color: #dc3545; letter-spacing: -0.5px; }
+        .brand-text span { font-size: 11px; color: #6c757d; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+        .sidebar .nav-item { margin: 4px 16px; }
+        .sidebar .nav-link { color: #495057; padding: 12px 16px; border-radius: 10px; display: flex; align-items: center; gap: 15px; font-weight: 500; font-size: 15px; transition: all 0.2s ease; text-decoration: none; }
+        .sidebar .nav-link:hover { color: #dc3545; background-color: rgba(220, 53, 69, 0.05); }
+        .sidebar .nav-link.active { background: linear-gradient(90deg, #dc3545, #b02a37); color: white; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.25); }
+        .user-profile { margin-top: auto; margin-bottom: 20px; margin-left: 16px; margin-right: 16px; background-color: #f8f9fa; border-radius: 16px; padding: 16px; display: flex; align-items: center; gap: 12px; border: 1px solid #dee2e6; }
+        .user-avatar { flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; background-color: #dc3545; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 16px; }
+        .user-info { min-width: 0; overflow: hidden; }
+        .user-info h6 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0; color: #000000; font-size: 14px; font-weight: 600; }
+        .user-info small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; color: #6c757d; font-size: 12px; }
+        .main-content { margin-left: 280px; padding: 40px; min-height: 100vh; background-color: #f4f6f9; }
+        .page-header { margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
+        .page-title { color: #dc3545; font-weight: 600; font-size: 28px; }
+        .card { background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .table { color: #000000; }
+        .table th { border-bottom-color: #dee2e6; color: #dc3545; font-weight: 600; }
+        .table td { border-bottom-color: #e9ecef; vertical-align: middle; }
+        .modal-content { background-color: #ffffff; border: 1px solid #dee2e6; }
+        .modal-header { border-bottom-color: #dee2e6; }
+        .modal-footer { border-top-color: #dee2e6; }
+        .form-control, .form-select { background-color: #ffffff; border-color: #ced4da; color: #000000; }
+        .form-control:focus, .form-select:focus { background-color: #ffffff; color: #000000; border-color: #dc3545; box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25); }
+        
+        .nav-tabs { border-bottom: 2px solid #dee2e6; margin-bottom: 20px; }
+        .nav-tabs .nav-link { color: #495057; border: none; border-bottom: 3px solid transparent; font-weight: 600; padding: 12px 20px; border-radius: 0; }
+        .nav-tabs .nav-link:hover { color: #dc3545; background-color: transparent; }
+        .nav-tabs .nav-link.active { color: #dc3545; border-bottom: 3px solid #dc3545; background: none; box-shadow: none; }
+    </style>
+</head>
+<body>
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+    <div class="main-content">
+<div class="toast-container position-fixed top-0 end-0 p-4" style="pointer-events: auto; z-index: 1050; min-width: 350px;">
+        <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show shadow" role="alert">
+            <strong th:if="${param.error[0] == 'duplicate'}">Error! This exact delivery is already active (duplicate driver, vehicle, and route).</strong>
+            <strong th:if="${param.error[0] == 'validation'}">Validation Error! Please check your inputs. Vehicle Registration must be 2-3 letters followed by a space or hyphen, and exactly 4 digits (e.g. CAB-1234 or WP-1234).</strong>
+            <strong th:unless="${param.error[0] == 'validation' or param.error[0] == 'duplicate'}">An error occurred during submission.</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+</div>
+        <div class="page-header">
+            <div>
+                <h1 class="page-title" th:text="${title}">Distribution & Logistics</h1>
+                <p class="text-muted">Track blood delivery transits and monitor real-time temperatures.</p>
+            </div>
+        </div>
+
+        <div class="card p-4">
+            <ul class="nav nav-tabs" id="crudTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#view-tab" type="button" role="tab"><i class="bi bi-table"></i> Track Deliveries</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#add-tab" type="button" role="tab"><i class="bi bi-truck"></i> New Dispatch Order</button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="crudTabsContent">
+                <!-- View Tab -->
+                <div class="tab-pane fade show active" id="view-tab" role="tabpanel">
+                    <div class="table-responsive mt-3">
+                        <table class="table table-borderless table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Driver</th>
+                                    <th>Vehicle Reg</th>
+                                    <th>Route Details</th>
+                                    <th>Temp (°C)</th>
+                                    <th>Dispatch Time</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${distributions.empty}">
+                                    <td colspan="8" class="text-center text-muted py-4">No active deliveries found.</td>
+                                </tr>
+                                <tr th:each="d, iterStat : ${distributions}">
+                                    <td th:text="${'DIST-00' + iterStat.count}">DIST-001</td>
+                                    <td th:text="${d.driverName}" class="fw-bold">John Doe</td>
+                                    <td th:text="${d.vehicleRegistration}">XY-1234</td>
+                                    <td th:text="${d.routeDetails}">Hospital A to B</td>
+                                    <td>
+                                        <span class="badge bg-info text-dark" th:text="${d.currentTemperature + ' °C'}">4.0 °C</span>
+                                    </td>
+                                    <td th:text="${#temporals.format(d.dispatchTime, 'HH:mm dd-MMM')}">10:00 24-Oct</td>
+                                    <td>
+                                        <span class="badge bg-warning text-dark" th:if="${d.status == 'IN_TRANSIT'}">IN_TRANSIT</span>
+                                        <span class="badge bg-success" th:if="${d.status == 'DELIVERED'}">DELIVERED</span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-dark" data-bs-toggle="modal" th:data-bs-target="'#updateModal' + ${d.id}"><i class="bi bi-pencil"></i> Update</button>
+                                        
+                                        <form th:action="@{/logistics/delete}" method="post" class="d-inline ms-1">
+                                            <input type="hidden" name="id" th:value="${d.id}"/>
+                                            <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                        </form>
+
+                                        <!-- Update Modal -->
+                                        <div class="modal fade" th:id="'updateModal' + ${d.id}" tabindex="-1">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <form th:action="@{/logistics/update}" method="post">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Update Transit Status</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <input type="hidden" name="id" th:value="${d.id}"/>
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Current Temperature (°C)</label>
+                                                                <input type="number" step="0.1" name="temp" class="form-control" th:value="${d.currentTemperature}">
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Update Status</label>
+                                                                <select name="status" class="form-select">
+                                                                    <option value="IN_TRANSIT" th:selected="${d.status == 'IN_TRANSIT'}">In Transit</option>
+                                                                    <option value="DELIVERED" th:selected="${d.status == 'DELIVERED'}">Delivered</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="submit" class="btn btn-danger">Save Update</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Add Tab -->
+                <div class="tab-pane fade" id="add-tab" role="tabpanel">
+                    <form th:action="@{/logistics/dispatch}" method="post" class="mt-4 col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Driver Name</label>
+                            <input type="text" name="driverName" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Vehicle Registration</label>
+                            <input type="text" name="vehicleRegistration" class="form-control"  pattern="^[A-Za-z]{2,3}[ -]\d{4}$" oninvalid="this.setCustomValidity('Invalid Sri Lankan Vehicle Registration. Must be 2-3 letters followed by a space or hyphen, and 4 numbers (e.g., CAA 1188).')" oninput="this.value = this.value.toUpperCase(); this.setCustomValidity('')" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Route Details</label>
+                            <input type="text" name="routeDetails" class="form-control" placeholder="e.g. Blood Bank -> City Hospital" required>
+                        </div>
+                        <button type="submit" class="btn btn-danger"><i class="bi bi-truck"></i> Dispatch Delivery</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+
+
