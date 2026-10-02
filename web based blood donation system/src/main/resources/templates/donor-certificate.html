@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donation Certificate</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f4f6f9; display: flex; align-items: center; justify-content: center; min-height: 100vh; font-family: 'Georgia', serif; }
+        .certificate-card { width: 800px; padding: 40px; background: white; border: 15px solid #dc3545; box-shadow: 0 10px 30px rgba(0,0,0,0.1); position: relative; text-align: center; }
+        .cert-header { font-size: 3rem; color: #dc3545; font-weight: bold; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; }
+        .cert-body { font-size: 1.5rem; color: #333; margin-bottom: 30px; }
+        .cert-name { font-size: 2.5rem; color: #000; font-weight: bold; margin: 20px 0; border-bottom: 2px dashed #ccc; display: inline-block; padding: 0 50px; }
+        .cert-details { font-size: 1.2rem; margin-top: 30px; color: #555; }
+        .cert-footer { margin-top: 50px; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 40px; }
+        .signature-line { border-top: 1px solid #000; width: 200px; margin: 10px auto 0; font-size: 1rem; color: #555; }
+        .ref-code { position: absolute; bottom: 20px; right: 30px; font-size: 0.9rem; color: #999; font-family: monospace; }
+        @media print {
+            body { background: white; margin: 0; padding: 0; display: block; }
+            .certificate-card { width: 100%; border: 10px solid #dc3545; box-shadow: none; margin: 0; }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="certificate-card">
+        <div class="no-print text-end mb-3">
+            <button onclick="window.print()" class="btn btn-danger">Print Certificate</button>
+        </div>
+        
+        <h1 class="cert-header">Certificate of Appreciation</h1>
+        
+        <div class="cert-body">
+            This proudly certifies that
+        </div>
+        
+        <div class="cert-name" th:text="${donor.user.name}">John Doe</div>
+        
+        <div class="cert-body mt-3">
+            has successfully donated blood and contributed to saving lives.
+        </div>
+        
+        <div class="cert-details">
+            <p><strong>Blood Group:</strong> <span th:text="${donation.bloodGroup}">O+</span></p>
+            <p><strong>Date:</strong> <span th:text="${#temporals.format(donation.donationDate, 'dd MMMM yyyy')}">01 January 2026</span></p>
+            <p><strong>Location:</strong> <span th:text="${donation.campaign != null ? donation.campaign.campaignName : 'Central Blood Bank'}">City Hospital</span></p>
+        </div>
+        
+        <div class="cert-footer">
+            <div>
+                <div class="signature-line">Authorized Signatory</div>
+            </div>
+            <div>
+                <div class="signature-line">Medical Officer</div>
+            </div>
+        </div>
+        
+        <div class="ref-code">Ref: <span th:text="${donation.donationRef}">REF-1234</span></div>
+    </div>
+</body>
+</html>
