@@ -1,0 +1,31 @@
+<div th:fragment="historyContent" xmlns:th="http://www.thymeleaf.org">
+    <div class="mb-3 border-bottom pb-3">
+        <h6 class="fw-bold mb-1" th:text="${request.requestRef}">REQ-1234</h6>
+        <p class="text-muted small mb-0">Blood Group: <strong th:text="${request.bloodGroup}"></strong> | Component: <span th:text="${request.bloodComponent}"></span></p>
+    </div>
+    
+    <div class="position-relative">
+        <div th:if="${history.empty}" class="text-muted py-3">No history records found.</div>
+        
+        <div th:each="record : ${history}" class="d-flex mb-4 position-relative">
+            <!-- Timeline line -->
+            <div style="position: absolute; left: 15px; top: 30px; bottom: -30px; width: 2px; background-color: #e9ecef; z-index: 0;"></div>
+            
+            <!-- Timeline dot -->
+            <div style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 1; margin-right: 15px;" 
+                 th:classappend="${record.status.name() == 'PENDING' ? 'bg-secondary text-white' : (record.status.name() == 'APPROVED' ? 'bg-primary text-white' : (record.status.name() == 'FULFILLED' ? 'bg-success text-white' : (record.status.name() == 'CANCELLED' ? 'bg-danger text-white' : 'bg-info text-dark')))}">
+                <i class="bi" th:classappend="${record.status.name() == 'FULFILLED' ? 'bi-check-lg' : (record.status.name() == 'CANCELLED' ? 'bi-x-lg' : 'bi-clock')}"></i>
+            </div>
+            
+            <!-- Timeline content -->
+            <div class="flex-grow-1 bg-light p-3 rounded border">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <strong th:text="${record.status}">STATUS</strong>
+                    <small class="text-muted" th:text="${#temporals.format(record.timestamp, 'MMM dd, HH:mm')}">Date</small>
+                </div>
+                <p class="mb-1 small" th:text="${record.remarks}">Remarks here</p>
+                <small class="text-muted fst-italic">by <span th:text="${record.updatedBy != null ? record.updatedBy.name : 'System'}">User</span></small>
+            </div>
+        </div>
+    </div>
+</div>

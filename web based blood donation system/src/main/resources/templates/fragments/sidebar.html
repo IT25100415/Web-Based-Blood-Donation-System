@@ -1,0 +1,116 @@
+<div th:fragment="sidebar" class="sidebar" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <div class="brand">
+        <div class="brand-icon">
+            <i class="bi bi-droplet-fill"></i>
+        </div>
+        <div class="brand-text">
+            <h3>Blood Donating</h3>
+        </div>
+    </div>
+    
+    <div class="nav flex-column">
+        <div class="nav-item">
+            <a th:href="@{/dashboard}" class="nav-link" th:classappend="${title == 'Dashboard' ? 'active' : ''}">
+                <i class="bi bi-grid-1x2-fill"></i> Dashboard
+            </a>
+        </div>
+                        <div class="nav-item" sec:authorize="hasRole('DONOR')">
+            <a th:href="@{/donor/profile}" class="nav-link" th:classappend="${title == 'My Profile' ? 'active' : ''}">
+                <i class="bi bi-person-fill"></i> My Profile
+            </a>
+        </div>
+        <div class="nav-item" sec:authorize="hasRole('DONOR')">
+            <a th:href="@{/donor/history}" class="nav-link" th:classappend="${title == 'Donation History' ? 'active' : ''}">
+                <i class="bi bi-clock-history"></i> Donation History
+            </a>
+        </div>
+        <div class="nav-item" sec:authorize="hasRole('DONOR')">
+            <a th:href="@{/donor/campaigns}" class="nav-link" th:classappend="${title == 'Donation Campaigns' ? 'active' : ''}">
+                <i class="bi bi-calendar-event-fill"></i> Campaigns
+            </a>
+        </div>
+        <div class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'STAFF', 'DONOR')">
+            <a th:href="@{/health-screening}" class="nav-link" th:classappend="${title == 'Health Screening' ? 'active' : ''}">
+                <i class="bi bi-heart-pulse-fill"></i> Health Screening
+            </a>
+        </div>
+        <div class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'STAFF')">
+            <a th:href="@{/donors}" class="nav-link" th:classappend="${title == 'Donor Directory' ? 'active' : ''}">
+                <i class="bi bi-people-fill"></i> Donor Directory
+            </a>
+        </div>
+        <div class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'STAFF')">
+            <a th:href="@{/inventory}" class="nav-link" th:classappend="${title == 'Blood Inventory' ? 'active' : ''}">
+                <i class="bi bi-box-seam-fill"></i> Blood Inventory
+            </a>
+        </div>
+        <div class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'STAFF')">
+            <a th:href="@{/requests}" class="nav-link" th:classappend="${title == 'Hospital Requests' ? 'active' : ''}">
+                <i class="bi bi-file-earmark-medical-fill"></i> Hospital Requests
+            </a>
+        </div>
+        <div class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'STAFF', 'HOSPITAL')">
+            <a th:href="@{/matching}" class="nav-link" th:classappend="${title == 'Smart Matching' ? 'active' : ''}">
+                <i class="bi bi-lightning-fill"></i> Smart Matching
+            </a>
+        </div>
+        <div class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'STAFF', 'ORGANIZER')">
+            <a th:href="@{/campaigns}" class="nav-link" th:classappend="${title == 'Donation Drives' ? 'active' : ''}">
+                <i class="bi bi-calendar-event-fill"></i> Donation Drives
+            </a>
+        </div>
+        <div class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'STAFF')">
+            <a th:href="@{/logistics}" class="nav-link" th:classappend="${title == 'Distribution & Logistics' ? 'active' : ''}">
+                <i class="bi bi-truck"></i> Distribution & Logistics
+            </a>
+        </div>
+        <div class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'STAFF')">
+            <a th:href="@{/console}" class="nav-link" th:classappend="${title == 'System Console' ? 'active' : ''}">
+                <i class="bi bi-bell-fill"></i> System Console
+            </a>
+        </div>
+    </div>
+    
+            <div class="nav-item" sec:authorize="hasRole('HOSPITAL')">
+            <a th:href="@{/hospital/profile}" class="nav-link" th:classappend="${title == 'Hospital Profile' ? 'active' : ''}">
+                <i class="bi bi-building"></i> Hospital Profile
+            </a>
+        </div>
+        <div class="nav-item" sec:authorize="hasRole('HOSPITAL')">
+            <a th:href="@{/hospital/requests}" class="nav-link" th:classappend="${title == 'Blood Request Management' ? 'active' : ''}">
+                <i class="bi bi-file-earmark-medical-fill"></i> My Blood Requests
+            </a>
+        </div>
+            <div class="nav-item" sec:authorize="hasRole('ORGANIZER')">
+            <a th:href="@{/organizer/dashboard}" class="nav-link" th:classappend="${title == 'Organizer Dashboard' ? 'active' : ''}">
+                <i class="bi bi-grid-1x2-fill"></i> Organizer Dashboard
+            </a>
+        </div>
+        <div class="nav-item" sec:authorize="hasRole('ORGANIZER')">
+            <a th:href="@{/organizer/campaigns}" class="nav-link" th:classappend="${title == 'My Campaigns' ? 'active' : ''}">
+                <i class="bi bi-calendar-event-fill"></i> My Campaigns
+            </a>
+        </div>
+    <div class="user-profile">
+        <div class="user-avatar" th:text="${#strings.substring(#authentication.name,0,1).toUpperCase()}">U</div>
+        <div class="user-info" style="flex-grow: 1;">
+            <h6 sec:authentication="name">User</h6>
+            <small sec:authentication="principal.authorities">ROLE_USER</small>
+        </div>
+        <a th:href="@{/logout}" class="text-danger ms-auto" title="Logout" style="font-size: 1.2rem; padding: 0 4px;"><i class="bi bi-box-arrow-right"></i></a>
+    </div>
+    <!-- Floating Notification Bell for Donors -->
+    <div sec:authorize="hasRole('DONOR')" style="position: fixed; top: 20px; right: 30px; z-index: 1050;">
+        <a th:href="@{/donor/alerts}" class="btn btn-light rounded-circle shadow position-relative" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border: 1px solid #dee2e6; background-color: white;">
+            <i class="bi bi-bell-fill text-danger fs-4"></i>
+            <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
+                <span class="visually-hidden">New alerts</span>
+            </span>
+        </a>
+    </div>
+</div>
+
+
+
+
+
