@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match Alerts - Blood Donation System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        body { background-color: #f8f9fa; color: #000000; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; overflow-x: hidden; }
+        .sidebar { background-color: #ffffff; height: 100vh; position: fixed; top: 0; left: 0; width: 280px; padding: 20px 0; display: flex; flex-direction: column; border-right: 1px solid #dee2e6; }
+        .brand { padding: 0 24px 30px; display: flex; align-items: center; gap: 15px; }
+        .brand-icon { width: 48px; height: 48px; background: linear-gradient(135deg, #dc3545, #b02a37); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: white; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4); }
+        .brand-text h3 { margin: 0; font-weight: 700; font-size: 20px; color: #dc3545; letter-spacing: -0.5px; }
+        .brand-text span { font-size: 11px; color: #6c757d; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+        .sidebar .nav-item { margin: 4px 16px; }
+        .sidebar .nav-link { color: #495057; padding: 12px 16px; border-radius: 10px; display: flex; align-items: center; gap: 15px; font-weight: 500; font-size: 15px; transition: all 0.2s ease; text-decoration: none; }
+        .sidebar .nav-link:hover { color: #dc3545; background-color: rgba(220, 53, 69, 0.05); }
+        .sidebar .nav-link i { font-size: 18px; width: 24px; text-align: center; }
+        .sidebar .nav-link.active { background: linear-gradient(90deg, #dc3545, #b02a37); color: white; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.25); }
+        .user-profile { margin-top: auto; margin-bottom: 20px; margin-left: 16px; margin-right: 16px; background-color: #f8f9fa; border-radius: 16px; padding: 16px; display: flex; align-items: center; gap: 12px; border: 1px solid #dee2e6; }
+        .user-avatar { flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; background-color: #dc3545; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 16px; }
+        .user-info { min-width: 0; overflow: hidden; }
+        .user-info h6 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0; color: #000000; font-size: 14px; font-weight: 600; }
+        .user-info small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; color: #6c757d; font-size: 12px; }
+        .main-content { margin-left: 280px; padding: 40px; min-height: 100vh; background-color: #f4f6f9; }
+        .page-header { margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
+        .page-title { color: #dc3545; font-weight: 600; font-size: 28px; }
+        .card { background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .table { color: #000000; }
+        .table th { border-bottom-color: #dee2e6; color: #dc3545; font-weight: 600; }
+        .table td { border-bottom-color: #e9ecef; vertical-align: middle; }
+        .modal-content { background-color: #ffffff; border: 1px solid #dee2e6; }
+        .modal-header { border-bottom-color: #dee2e6; }
+        .modal-footer { border-top-color: #dee2e6; }
+        .form-control, .form-select { background-color: #ffffff; border-color: #ced4da; color: #000000; }
+        .form-control:focus, .form-select:focus { background-color: #ffffff; color: #000000; border-color: #dc3545; box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25); }
+        
+        .nav-tabs { border-bottom: 2px solid #dee2e6; margin-bottom: 20px; }
+        .nav-tabs .nav-link { color: #495057; border: none; border-bottom: 3px solid transparent; font-weight: 600; padding: 12px 20px; border-radius: 0; }
+        .nav-tabs .nav-link:hover { color: #dc3545; background-color: transparent; }
+        .nav-tabs .nav-link.active { color: #dc3545; border-bottom: 3px solid #dc3545; background: none; box-shadow: none; }
+    </style>
+</head>
+<body>
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+    <div class="main-content">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Match Alerts</h1>
+                <p class="text-muted">Review and respond to hospital blood requests.</p>
+            </div>
+            <div>
+                <span class="badge bg-danger rounded-pill fs-6" th:text="${alerts.size()} + ' Total Alerts'">0 Total Alerts</span>
+            </div>
+        </div>
+
+        <div class="card p-4">
+            <div class="table-responsive mt-3">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Alert ID</th>
+                            <th>Hospital</th>
+                            <th>Requested Blood Group</th>
+                            <th>Match Time</th>
+                            <th>Your Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${alerts.empty}">
+                            <td colspan="6" class="text-center text-muted py-4">You have no match alerts at the moment.</td>
+                        </tr>
+                        <tr th:each="alert : ${alerts}">
+                            <td th:text="${alert.id}">1</td>
+                            <td th:text="${alert.bloodRequest != null && alert.bloodRequest.hospital != null ? alert.bloodRequest.hospital.hospitalName : 'Unknown Hospital'}">Hospital</td>
+                            <td th:text="${alert.bloodRequest != null ? alert.bloodRequest.bloodGroup : 'Unknown'}">A+</td>
+                            <td th:text="${#temporals.format(alert.matchTime, 'HH:mm dd-MMM-yyyy')}">10:00 24-Oct</td>
+                            <td>
+                                <span class="badge bg-warning text-dark" th:if="${alert.status == 'NOTIFIED'}">NOTIFIED</span>
+                                <span class="badge bg-primary" th:if="${alert.status == 'ACCEPTED'}">ACCEPTED</span>
+                                <span class="badge bg-danger" th:if="${alert.status == 'DECLINED'}">DECLINED</span>
+                                <span class="badge bg-success" th:if="${alert.status == 'COMPLETED'}">COMPLETED</span>
+                            </td>
+                            <td>
+                                <form th:if="${alert.status == 'NOTIFIED'}" th:action="@{/donor/alerts/update-status}" method="post" class="d-inline">
+                                    <input type="hidden" name="id" th:value="${alert.id}"/>
+                                    <input type="hidden" name="status" value="ACCEPTED"/>
+                                    <button type="submit" class="btn btn-sm btn-outline-success"><i class="bi bi-check-circle"></i> Accept</button>
+                                </form>
+                                <form th:if="${alert.status == 'NOTIFIED'}" th:action="@{/donor/alerts/update-status}" method="post" class="d-inline ms-1">
+                                    <input type="hidden" name="id" th:value="${alert.id}"/>
+                                    <input type="hidden" name="status" value="DECLINED"/>
+                                    <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-x-circle"></i> Decline</button>
+                                </form>
+                                <span th:if="${alert.status != 'NOTIFIED'}" class="text-muted small">Action Taken</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+
