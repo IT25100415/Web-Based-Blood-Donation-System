@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Blood Donating OS - ' + ${title}">Blood Donating OS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body { background-color: #f8f9fa; color: #000000; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; overflow-x: hidden; }
+        .sidebar { background-color: #ffffff; height: 100vh; position: fixed; top: 0; left: 0; width: 280px; padding: 20px 0; display: flex; flex-direction: column; border-right: 1px solid #dee2e6; }
+        .brand { padding: 0 24px 30px; display: flex; align-items: center; gap: 15px; }
+        .brand-icon { width: 48px; height: 48px; background: linear-gradient(135deg, #dc3545, #b02a37); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: white; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4); }
+        .brand-text h3 { margin: 0; font-weight: 700; font-size: 20px; color: #dc3545; letter-spacing: -0.5px; }
+        .brand-text span { font-size: 11px; color: #6c757d; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+        .sidebar .nav-item { margin: 4px 16px; }
+        .sidebar .nav-link { color: #495057; padding: 12px 16px; border-radius: 10px; display: flex; align-items: center; gap: 15px; font-weight: 500; font-size: 15px; transition: all 0.2s ease; text-decoration: none; }
+        .sidebar .nav-link:hover { color: #dc3545; background-color: rgba(220, 53, 69, 0.05); }
+        .sidebar .nav-link i { font-size: 18px; width: 24px; text-align: center; }
+        .sidebar .nav-link.active { background: linear-gradient(90deg, #dc3545, #b02a37); color: white; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.25); }
+        .user-profile { margin-top: auto; margin-bottom: 20px; margin-left: 16px; margin-right: 16px; background-color: #f8f9fa; border-radius: 16px; padding: 16px; display: flex; align-items: center; gap: 12px; border: 1px solid #dee2e6; }
+        .user-avatar { flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; background-color: #dc3545; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 16px; }
+        .user-info { min-width: 0; overflow: hidden; }
+        .user-info h6 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0; color: #000000; font-size: 14px; font-weight: 600; }
+        .user-info small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; color: #6c757d; font-size: 12px; }
+        .main-content { margin-left: 280px; padding: 40px; min-height: 100vh; background-color: #f4f6f9; }
+        .page-header { margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
+        .page-title { color: #dc3545; font-weight: 600; font-size: 28px; }
+        .card { background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); margin-bottom: 24px; }
+        .filter-bar { background: #fff; padding: 15px; border-radius: 12px; border: 1px solid #dee2e6; margin-bottom: 20px; }
+    
+        .main-content { margin-left: 280px; padding: 40px; min-height: 100vh; background-color: #f4f6f9; }
+    </style>
+</head>
+<body>
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    
+    <div class="main-content">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Blood Request Management</h1>
+                <p class="text-muted">Track and manage blood requests for your hospital.</p>
+            </div>
+            <button class="btn btn-danger px-4" data-bs-toggle="modal" data-bs-target="#createRequestModal">
+                <i class="bi bi-plus-lg"></i> New Blood Request
+            </button>
+        </div>
+
+<div class="toast-container position-fixed top-0 end-0 p-4" style="pointer-events: auto; z-index: 1050; min-width: 350px;">
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show shadow"><span th:text="${success}"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show"><span th:text="${error}"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+
+</div>
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <form action="/hospital/requests" method="get" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label small text-muted">Status</label>
+                    <select name="statusFilter" class="form-select form-select-sm">
+                        <option value="">All Statuses</option>
+                        <option value="PENDING" th:selected="${statusFilter == 'PENDING'}">Pending</option>
+                        <option value="UNDER_REVIEW" th:selected="${statusFilter == 'UNDER_REVIEW'}">Under Review</option>
+                        <option value="APPROVED" th:selected="${statusFilter == 'APPROVED'}">Approved</option>
+                        <option value="PARTIALLY_FULFILLED" th:selected="${statusFilter == 'PARTIALLY_FULFILLED'}">Partially Fulfilled</option>
+                        <option value="FULFILLED" th:selected="${statusFilter == 'FULFILLED'}">Fulfilled</option>
+                        <option value="CANCELLED" th:selected="${statusFilter == 'CANCELLED'}">Cancelled</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small text-muted">Urgency</label>
+                    <select name="urgencyFilter" class="form-select form-select-sm">
+                        <option value="">All Urgencies</option>
+                        <option value="NORMAL" th:selected="${urgencyFilter == 'NORMAL'}">Normal</option>
+                        <option value="URGENT" th:selected="${urgencyFilter == 'URGENT'}">Urgent</option>
+                        <option value="EMERGENCY" th:selected="${urgencyFilter == 'EMERGENCY'}">Emergency</option>
+                        <option value="CRITICAL" th:selected="${urgencyFilter == 'CRITICAL'}">Critical</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small text-muted">Blood Group</label>
+                    <select name="bloodGroupFilter" class="form-select form-select-sm">
+                        <option value="">All Groups</option>
+                        <option value="A+" th:selected="${bloodGroupFilter == 'A+'}">A+</option>
+                        <option value="A-" th:selected="${bloodGroupFilter == 'A-'}">A-</option>
+                        <option value="B+" th:selected="${bloodGroupFilter == 'B+'}">B+</option>
+                        <option value="O+" th:selected="${bloodGroupFilter == 'O+'}">O+</option>
+                        <option value="O-" th:selected="${bloodGroupFilter == 'O-'}">O-</option>
+                        <option value="AB+" th:selected="${bloodGroupFilter == 'AB+'}">AB+</option>
+                        <option value="AB-" th:selected="${bloodGroupFilter == 'AB-'}">AB-</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-sm btn-dark w-100">Filter</button>
+                </div>
+                <div class="col-md-2">
+                    <a href="/hospital/requests" class="btn btn-sm btn-outline-secondary w-100">Clear</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Requests Table -->
+        <div class="card p-0 overflow-hidden">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Reference</th>
+                            <th>Requested Date</th>
+                            <th>Blood / Component</th>
+                            <th>Units (Fulfilled / Req)</th>
+                            <th>Urgency</th>
+                            <th>Status</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${requests.empty}">
+                            <td colspan="7" class="text-center text-muted py-5">No blood requests found matching your criteria.</td>
+                        </tr>
+                        <tr th:each="r : ${requests}">
+                            <td class="ps-4">
+                                <span class="fw-bold text-dark" th:text="${r.requestRef ?: 'REQ-OLD-' + r.id}">REQ-123</span><br>
+                                <small class="text-muted" th:text="${r.patientReference ?: 'General / N/A'}">Patient X</small>
+                            </td>
+                            <td th:text="${#temporals.format(r.requestedDate, 'dd MMM yyyy, HH:mm')}">Date</td>
+                            <td>
+                                <span class="badge bg-danger fs-6" th:text="${r.bloodGroup}">O+</span>
+                                <span class="badge bg-light text-dark border ms-1" th:text="${r.bloodComponent ?: 'Whole Blood'}">Whole Blood</span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="progress flex-grow-1" style="height: 6px;">
+                                        <div class="progress-bar bg-success" th:style="'width: ' + (${r.fulfilledQuantity ?: 0} * 100 / ${r.unitsRequired}) + '%'"></div>
+                                    </div>
+                                    <span class="small fw-bold"><span th:text="${r.fulfilledQuantity ?: 0}">0</span>/<span th:text="${r.unitsRequired}">5</span></span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge" th:classappend="${r.urgencyLevel.name() == 'CRITICAL' ? 'bg-danger' : (r.urgencyLevel.name() == 'EMERGENCY' ? 'bg-warning text-dark' : 'bg-secondary')}" th:text="${r.urgencyLevel}">NORMAL</span>
+                            </td>
+                            <td>
+                                <span class="badge" th:classappend="${r.status.name() == 'PENDING' ? 'bg-secondary' : (r.status.name() == 'APPROVED' ? 'bg-primary' : (r.status.name() == 'FULFILLED' ? 'bg-success' : (r.status.name() == 'CANCELLED' ? 'bg-danger' : 'bg-info text-dark')))}" th:text="${r.status}">PENDING</span>
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-light border" type="button" data-bs-toggle="dropdown"><i class="bi bi-three-dots-vertical"></i></button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                        <li><button class="dropdown-item" th:data-id="${r.id}" onclick="loadHistory(this.getAttribute('data-id'))" data-bs-toggle="modal" data-bs-target="#historyModal"><i class="bi bi-clock-history me-2"></i> View History</button></li>
+                                        <li th:if="${r.status.name() == 'PENDING' or r.status.name() == 'UNDER_REVIEW'}"><button class="dropdown-item" th:data-id="${r.id}" th:data-units="${r.unitsRequired}" th:data-urgency="${r.urgencyLevel}" onclick="editRequest(this.getAttribute('data-id'), this.getAttribute('data-units'), this.getAttribute('data-urgency'))" data-bs-toggle="modal" data-bs-target="#editModal"><i class="bi bi-pencil me-2"></i> Update / Escalate</button></li>
+                                        <li th:if="${r.status.name() != 'FULFILLED' and r.status.name() != 'DISPATCHED' and r.status.name() != 'CANCELLED'}">
+                                            <hr class="dropdown-divider">
+                                            <button class="dropdown-item text-danger" th:data-id="${r.id}" onclick="cancelRequest(this.getAttribute('data-id'))" data-bs-toggle="modal" data-bs-target="#cancelModal"><i class="bi bi-x-circle me-2"></i> Cancel Request</button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Modal -->
+    <div class="modal fade" id="createRequestModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-danger">Create Blood Request</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form th:action="@{/hospital/requests/create}" method="post">
+                    <div class="modal-body row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Blood Group *</label>
+                            <select name="bloodGroup" class="form-select" required>
+                                <option value="">Select...</option>
+                                <option value="A+">A+</option><option value="A-">A-</option>
+                                <option value="B+">B+</option><option value="B-">B-</option>
+                                <option value="O+">O+</option><option value="O-">O-</option>
+                                <option value="AB+">AB+</option><option value="AB-">AB-</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Blood Component *</label>
+                            <select name="bloodComponent" class="form-select" required>
+                                <option value="Whole Blood">Whole Blood</option>
+                                <option value="Red Blood Cells (RBC)">Red Blood Cells (RBC)</option>
+                                <option value="Platelets">Platelets</option>
+                                <option value="Plasma">Plasma</option>
+                                <option value="Cryoprecipitate">Cryoprecipitate</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Units Required *</label>
+                            <input type="number" name="unitsRequired" class="form-control" min="1" max="100" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Date Needed By *</label>
+                            <input type="datetime-local" name="neededDate" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Urgency Level *</label>
+                            <select name="urgencyLevel" class="form-select" required>
+                                <option value="NORMAL">Normal</option>
+                                <option value="URGENT">Urgent</option>
+                                <option value="EMERGENCY">Emergency</option>
+                                <option value="CRITICAL">Critical (Life-threatening)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Patient Ref / Ward</label>
+                            <input type="text" name="patientReference" class="form-control" placeholder="e.g. Ward 4 / P-1204">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Reason / Diagnosis</label>
+                            <textarea name="reason" class="form-control" rows="2" placeholder="e.g. Surgery, Accident, Anemia"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Submit Request</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Update Request</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="editForm" method="post" th:action="@{/hospital/requests/dummy}">
+                    <div class="modal-body">
+                        <p class="text-muted small">You can only modify pending requests.</p>
+                        <div class="mb-3">
+                            <label class="form-label">Units Required</label>
+                            <input type="number" name="unitsRequired" id="editUnits" class="form-control" min="1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Urgency Level</label>
+                            <select name="urgencyLevel" id="editUrgency" class="form-select" required>
+                                <option value="NORMAL">Normal</option>
+                                <option value="URGENT">Urgent</option>
+                                <option value="EMERGENCY">Emergency</option>
+                                <option value="CRITICAL">Critical (Life-threatening)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save Updates</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancel Modal -->
+    <div class="modal fade" id="cancelModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-danger">Cancel Request</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="cancelForm" method="post" th:action="@{/hospital/requests/dummy}">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Reason for cancellation *</label>
+                            <textarea name="cancelReason" class="form-control" rows="3" required placeholder="e.g. No longer needed, procured elsewhere..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger">Confirm Cancellation</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Modal -->
+    <div class="modal fade" id="historyModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Request Status History</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="historyModalBody">
+                    <div class="text-center py-4"><div class="spinner-border text-danger" role="status"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function editRequest(id, units, urgency) {
+            document.getElementById('editForm').action = '/hospital/requests/' + id + '/update';
+            document.getElementById('editUnits').value = units;
+            document.getElementById('editUrgency').value = urgency;
+        }
+        
+        function cancelRequest(id) {
+            document.getElementById('cancelForm').action = '/hospital/requests/' + id + '/cancel';
+        }
+        
+        function loadHistory(id) {
+            document.getElementById('historyModalBody').innerHTML = '<div class="text-center py-4"><div class="spinner-border text-danger" role="status"></div></div>';
+            fetch('/hospital/requests/' + id + '/history')
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('historyModalBody').innerHTML = html;
+                })
+                .catch(error => {
+                    document.getElementById('historyModalBody').innerHTML = '<p class="text-danger">Failed to load history.</p>';
+                });
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
