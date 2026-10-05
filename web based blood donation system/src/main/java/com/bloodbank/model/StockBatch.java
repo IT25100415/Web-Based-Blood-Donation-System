@@ -32,7 +32,8 @@ public class StockBatch {
     
     @NotNull(message = "Units are required")
     @Min(value = 1, message = "At least 1 unit is required")
-    private Integer units;
+    @Column(nullable = false, columnDefinition = "int default 1")
+    private Integer units = 1;
     
     // Getters and Setters
     public String getBatchNumber() { return batchNumber; }

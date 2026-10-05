@@ -1,0 +1,14 @@
+# Target build output
+**/target/
+target/
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+
+# Temporary / logs
+*.log
+scratch/
+.gemini/
+*.flag
