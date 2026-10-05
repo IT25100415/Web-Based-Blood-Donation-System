@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Blood Donating OS - ' + ${title}">Blood Donating OS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body { background-color: #f8f9fa; color: #000000; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; overflow-x: hidden; }
+        .sidebar { background-color: #ffffff; height: 100vh; position: fixed; top: 0; left: 0; width: 280px; padding: 20px 0; display: flex; flex-direction: column; border-right: 1px solid #dee2e6; }
+        .brand { padding: 0 24px 30px; display: flex; align-items: center; gap: 15px; }
+        .brand-icon { width: 48px; height: 48px; background: linear-gradient(135deg, #dc3545, #b02a37); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: white; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4); }
+        .brand-text h3 { margin: 0; font-weight: 700; font-size: 20px; color: #dc3545; letter-spacing: -0.5px; }
+        .brand-text span { font-size: 11px; color: #6c757d; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+        .sidebar .nav-item { margin: 4px 16px; }
+        .sidebar .nav-link { color: #495057; padding: 12px 16px; border-radius: 10px; display: flex; align-items: center; gap: 15px; font-weight: 500; font-size: 15px; transition: all 0.2s ease; text-decoration: none; }
+        .sidebar .nav-link:hover { color: #dc3545; background-color: rgba(220, 53, 69, 0.05); }
+        .sidebar .nav-link i { font-size: 18px; width: 24px; text-align: center; }
+        .sidebar .nav-link.active { background: linear-gradient(90deg, #dc3545, #b02a37); color: white; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.25); }
+        .user-profile { margin-top: auto; margin-bottom: 20px; margin-left: 16px; margin-right: 16px; background-color: #f8f9fa; border-radius: 16px; padding: 16px; display: flex; align-items: center; gap: 12px; border: 1px solid #dee2e6; }
+        .user-avatar { flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; background-color: #dc3545; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 16px; }
+        .user-info { min-width: 0; overflow: hidden; }
+        .user-info h6 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0; color: #000000; font-size: 14px; font-weight: 600; }
+        .user-info small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; color: #6c757d; font-size: 12px; }
+        .main-content { margin-left: 280px; padding: 40px; min-height: 100vh; background-color: #f4f6f9; }
+        .page-header { margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
+        .page-title { color: #dc3545; font-weight: 600; font-size: 28px; }
+        .card { background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); margin-bottom: 24px; }
+        .form-control, .form-select { border-radius: 8px; border: 1px solid #ced4da; padding: 10px 15px; }
+        .form-control:focus, .form-select:focus { border-color: #dc3545; box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25); }
+        .table th { border-bottom-color: #dee2e6; color: #dc3545; font-weight: 600; }
+        .slot-row { background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; gap: 15px; align-items: center; }
+    </style>
+</head>
+<body>
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    
+    <div class="main-content">
+        <div class="page-header">
+            <h1 class="page-title"><i class="bi bi-calendar-event-fill me-2"></i> My Campaigns</h1>
+            <button class="btn btn-danger rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#createModal"><i class="bi bi-plus-lg me-2"></i> Create Campaign</button>
+        </div>
+        
+        <div class="card p-4">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Ref #</th>
+                            <th>Campaign Name</th>
+                            <th>Date / Time</th>
+                            <th>Venue</th>
+                            <th>Target Units</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="c : ${campaigns}">
+                            <td><span class="badge bg-light text-dark border" th:text="${c.campaignRef}"></span></td>
+                            <td th:text="${c.campaignName}">Name</td>
+                            <td>
+                                <div th:text="${#temporals.format(c.startTime, 'MMM dd, yyyy')}">Date</div>
+                                <small class="text-muted" th:text="${#temporals.format(c.startTime, 'HH:mm')} + ' - ' + ${#temporals.format(c.endTime, 'HH:mm')}">Time</small>
+                            </td>
+                            <td th:text="${c.venue}">Venue</td>
+                            <td th:text="${c.targetDonationUnits}">0</td>
+                            <td>
+                                <span class="badge bg-warning" th:if="${c.status == 'DRAFT'}">Draft</span>
+                                <span class="badge bg-primary" th:if="${c.status == 'ACTIVE'}">Active</span>
+                                <span class="badge bg-success" th:if="${c.status == 'COMPLETED'}">Completed</span>
+                                <span class="badge bg-danger" th:if="${c.status == 'CANCELLED'}">Cancelled</span>
+                            </td>
+                            <td>
+                                <a th:href="@{/organizer/campaigns/{id}/registrations(id=${c.id})}" class="btn btn-sm btn-outline-primary"><i class="bi bi-people"></i> Donors</a>
+                                <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" th:data-bs-target="'#cancelModal' + ${c.id}" th:if="${c.status != 'COMPLETED' && c.status != 'CANCELLED'}">Cancel</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Create Modal -->
+    <div class="modal fade" id="createModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">Create New Campaign</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form th:action="@{/organizer/campaigns/create}" method="post">
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <label class="form-label">Campaign Name</label>
+                                <input type="text" name="campaignName" class="form-control" required>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label">Description</label>
+                                <textarea name="description" class="form-control" rows="2"></textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Venue Name</label>
+                                <input type="text" name="venue" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">City</label>
+                                <input type="text" name="city" class="form-control" required>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label">Full Address</label>
+                                <input type="text" name="fullAddress" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Start Time</label>
+                                <input type="datetime-local" name="startTime" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">End Time</label>
+                                <input type="datetime-local" name="endTime" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Maximum Donor Capacity</label>
+                                <input type="number" name="targetCapacity" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Target Donation Units</label>
+                                <input type="number" name="targetDonationUnits" class="form-control" required>
+                            </div>
+                            
+                            <div class="col-12 mt-4">
+                                <h6 class="text-danger fw-bold border-bottom pb-2">Time Slots</h6>
+                                <div id="slotsContainer">
+                                    <div class="slot-row">
+                                        <div class="flex-grow-1">
+                                            <label class="form-label text-muted small">Start Time</label>
+                                            <input type="time" name="slotStart" class="form-control">
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <label class="form-label text-muted small">End Time</label>
+                                            <input type="time" name="slotEnd" class="form-control">
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <label class="form-label text-muted small">Capacity</label>
+                                            <input type="number" name="slotCap" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-danger mt-2" onclick="addSlot()"><i class="bi bi-plus-circle"></i> Add Another Slot</button>
+                            </div>
+                            
+                            <div class="col-12 mt-4">
+                                <label class="form-label">Initial Status</label>
+                                <select name="status" class="form-select">
+                                    <option value="DRAFT">Draft (Not visible to donors)</option>
+                                    <option value="ACTIVE">Active (Open for registration)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger">Save Campaign</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Cancel Modals -->
+    <div th:each="c : ${campaigns}">
+        <div class="modal fade" th:id="'cancelModal' + ${c.id}" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form th:action="@{/organizer/campaigns/cancel}" method="post">
+                        <div class="modal-header bg-danger text-white">
+                            <h5 class="modal-title">Cancel Campaign</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Are you sure you want to cancel <strong th:text="${c.campaignName}"></strong>?</p>
+                            <input type="hidden" name="id" th:value="${c.id}">
+                            <label class="form-label">Cancellation Reason</label>
+                            <textarea name="reason" class="form-control" required rows="3"></textarea>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Go Back</button>
+                            <button type="submit" class="btn btn-danger">Confirm Cancellation</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function addSlot() {
+            const container = document.getElementById('slotsContainer');
+            const row = document.createElement('div');
+            row.className = 'slot-row';
+            row.innerHTML = `
+                <div class="flex-grow-1"><input type="time" name="slotStart" class="form-control" required></div>
+                <div class="flex-grow-1"><input type="time" name="slotEnd" class="form-control" required></div>
+                <div class="flex-grow-1"><input type="number" name="slotCap" class="form-control" required></div>
+                <button type="button" class="btn btn-outline-secondary" onclick="this.parentElement.remove()"><i class="bi bi-trash"></i></button>
+            `;
+            container.appendChild(row);
+        }
+    </script>
+</body>
+</html>
